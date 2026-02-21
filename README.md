@@ -1,73 +1,62 @@
-# React + TypeScript + Vite
+# Art Institute of Chicago - Artwork Gallery
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React application built with **Vite** and **TypeScript** that displays artwork data from the Art Institute of Chicago API. This project features server-side pagination and a custom persistent row selection strategy.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Vite + TypeScript**: Modern, fast development environment.
+- **PrimeReact DataTable**: Robust UI components for data display and interaction.
+- **Server-Side Pagination**: Data is fetched per page (12 rows per page) to ensure optimal performance and low memory usage.
+- **Persistent Selection**: Row selections are maintained across page navigations.
+- **Custom Row Selection (Select N)**: An overlay panel allows users to select a specific number of rows across the entire dataset instantly.
+- **Optimized Selection Strategy**: 
+  - **No Pre-fetching**: Unlike common "bad" implementations, this app does **not** fetch multiple pages in a loop to select rows.
+  - **Virtual Selection Logic**: Selection is calculated on-the-fly using a global index comparison combined with manual selection/deselection overrides (stored as Maps). This ensures that selecting 1,000+ rows is instant and uses minimal memory.
+- **Live Selection Counter**: Displays the total number of selected artworks at the top of the table.
 
-## React Compiler
+## 🛠️ Technical Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework**: React 19 (Vite)
+- **Language**: TypeScript
+- **UI Components**: PrimeReact
+- **Styling**: PrimeFlex / CSS
+- **API Handling**: Axios
 
-## Expanding the ESLint configuration
+## 📋 Data Fields Displayed
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- `title`
+- `place_of_origin`
+- `artist_display`
+- `inscriptions`
+- `date_start`
+- `date_end`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## ⚙️ Installation & Setup
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. **Clone the repository**:
+   ```bash
+   git clone <your-repo-url>
+   cd <project-folder>
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+4. **Build for production**:
+   ```bash
+   npm run build
+   ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🧠 Implementation Note: Selection Strategy
+To meet the requirement of selecting 'N' rows without pre-fetching other pages, I implemented a **Virtual Selection** strategy. 
+- A `bulkSelectionLimit` state tracks the user's requested count.
+- As the user navigates pages, the application calculates the `globalIndex` of each row: `(page - 1) * rowsPerPage + localIndex + 1`.
+- Rows are automatically marked as "selected" if their `globalIndex` is within the limit, unless the user manually deselects them.
+- Manual toggles (selections and deselections) are stored in `Map` objects to ensure they persist across page changes without needing to store the entire artwork object or fetch all IDs in advance.
